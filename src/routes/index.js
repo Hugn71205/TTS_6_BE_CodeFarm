@@ -1,14 +1,12 @@
-import { Router } from "express";
+import express from "express";
 
-const routes = Router();
+const router = express.Router();
 
-routes.use("/", (req, res) => {
-    res.success([{name: 'thang', age: 13}], "success", 200)
-})
+// Route kiểm tra kết nối từ frontend
+router.get("/ping", (req, res) => {
+  console.log("Frontend đã kết nối thành công");
+  res.json({ message: "Backend kết nối thành công!" });
+});
 
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
 
-export default routes;
+export default router;
