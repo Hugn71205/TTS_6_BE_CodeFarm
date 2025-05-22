@@ -7,7 +7,6 @@ async function register(req, res) {
   try {
     const { name, email, password } = req.body;
 
-    // Kiểm tra dữ liệu hợp lệ
     const { error } = registerSchema.validate(req.body, { abortEarly: false });
     if (error) {
       const errorsMessage = error.details.map((err) => err.message);
@@ -19,10 +18,8 @@ async function register(req, res) {
       return res.status(400).json({ message: "Email existed" });
     }
 
-    // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Thêm user (bổ sung name)
     const newUser = {
       name,
       email,
@@ -30,7 +27,6 @@ async function register(req, res) {
     };
     const userCreated = await UserModel.create(newUser);
 
-    // Remove password trong response
     res.json({ ...userCreated.toObject(), password: undefined });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -41,7 +37,6 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
-    // Kiểm tra dữ liệu hợp lệ
     if (!email || !password) {
       return res.status(400).json({ message: "Hãy điền email và password!" });
     }
@@ -49,22 +44,18 @@ async function login(req, res) {
       return res.status(400).json({ message: "Password tối thiểu 6 kí tự!" });
     }
 
-    // Tìm user theo email (chỉnh thành UserModel)
     const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Người dùng không tồn tại, hãy kiểm tra lại email và mật khẩu!" });
     }
 
-    // Kiểm tra mật khẩu
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Sai mật khẩu, hãy kiểm tra và thử lại!" });
     }
 
-    // Tạo token JWT
     const token = jwt.sign({ id: user._id }, "diablo", { expiresIn: "1w" });
 
-    // Remove password trong response
     res.json({ ...user.toObject(), password: undefined, token });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -73,7 +64,6 @@ async function login(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    // Lấy tất cả người dùng, loại bỏ password khỏi kết quả
     const users = await UserModel.find({}, { password: 0 });
 
     res.json(users);
@@ -83,3 +73,20 @@ async function getAllUsers(req, res) {
 }
 
 export { register, login, getAllUsers};
+
+export const deleteUser = async (req,res)=>{
+    try {
+        // Lấy id
+        const id = req.params.id
+        // Tìm sản phẩm theo id
+        const user = await UserModel.findOne({_id:id})
+        if (user){
+            await UserModel.findOneAndDelete({_id:id})
+            res.status(200).send({message:"Xóa người dùng thành công",status:true})
+        }
+        else throw {mes:"Không tìm thấy người dùng",code:404}
+    } catch (error) {
+        // console.log(error);        
+        res.status(error.code??500).send({message:error.mes??"Xóa không thành công",status:false})
+    }
+}

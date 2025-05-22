@@ -4,6 +4,10 @@ import connectDB from "./src/configs/db.js"; // Đảm bảo import đúng conne
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
 import authRouter from "./src/routes/authRouter.js";
+import categoryRouter from "./src/routes/categoryRouter.js";
+import brandRouter from "./src/routes/brandRouter.js";
+import productRouter from "./src/routes/productRouter.js";
+import responseHandler from "./src/middlewares/responseHandle.js";
 
 // Load biến môi trường
 dotenv.config();
@@ -11,12 +15,16 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(responseHandler)
 
 // Kết nối MongoDB
 connectDB();
 // API routes
 app.use("/api", router);
-app.use("/auth", authRouter); 
+app.use("/auth", authRouter);
+app.use("/categories", categoryRouter);
+app.use("/brands", brandRouter);
+app.use("/products", productRouter);
 
 
 // Khởi động server
