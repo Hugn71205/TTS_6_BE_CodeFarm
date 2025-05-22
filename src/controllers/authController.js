@@ -2,38 +2,48 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
 import { registerSchema } from "../validate/auth.js";
+import { sendMail } from "../utils/emailService.js";
+
 
 async function register(req, res) {
   try {
     const { name, email, password } = req.body;
 
-    // Kiểm tra dữ liệu hợp lệ
-    const { error } = registerSchema.validate(req.body, { abortEarly: false });
-    if (error) {
-      const errorsMessage = error.details.map((err) => err.message);
-      return res.status(400).json({ message: errorsMessage });
+    // Validate dữ liệu (bạn dùng validate riêng)
+
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email đã tồn tại" });
     }
 
-    const user = await UserModel.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: "Email existed" });
-    }
-
-    // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Thêm user (bổ sung name)
-    const newUser = {
+    // Tạo mã code ngẫu nhiên 6 số
+    const verificationCode = ("" + Math.floor(100000 + Math.random() * 900000)); 
+    const codeExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+    const newUser = await UserModel.create({
       name,
       email,
       password: hashedPassword,
-    };
-    const userCreated = await UserModel.create(newUser);
+      verified: false,
+      verificationCode,
+      codeExpire,
+    });
 
-    // Remove password trong response
-    res.json({ ...userCreated.toObject(), password: undefined });
+    // // Gửi mail kèm mã code
+    // await sendMail(
+    //   email,
+    //   "Mã xác minh email của bạn",
+    //   `<p>Chào ${name},</p><p>Mã xác minh email của bạn là: <b>${verificationCode}</b></p><p>Mã có hiệu lực 15 phút.</p>`
+    // );
+
+    return res.status(201).json({
+      message: "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã xác minh.",
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Lỗi register:", error);
+    return res.status(500).json({ message: "Lỗi server" });
   }
 }
 
@@ -41,7 +51,6 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
-    // Kiểm tra dữ liệu hợp lệ
     if (!email || !password) {
       return res.status(400).json({ message: "Hãy điền email và password!" });
     }
@@ -49,37 +58,76 @@ async function login(req, res) {
       return res.status(400).json({ message: "Password tối thiểu 6 kí tự!" });
     }
 
-    // Tìm user theo email (chỉnh thành UserModel)
     const user = await UserModel.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Người dùng không tồn tại, hãy kiểm tra lại email và mật khẩu!" });
+      return res.status(401).json({ message: "Người dùng không tồn tại" });
     }
 
-    // Kiểm tra mật khẩu
+    if (!user.verified) {
+      return res.status(401).json({ message: "Vui lòng xác minh email trước khi đăng nhập" });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Sai mật khẩu, hãy kiểm tra và thử lại!" });
+      return res.status(401).json({ message: "Sai mật khẩu" });
     }
 
-    // Tạo token JWT
-    const token = jwt.sign({ id: user._id }, "diablo", { expiresIn: "1w" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Remove password trong response
-    res.json({ ...user.toObject(), password: undefined, token });
+    const userData = user.toObject();
+    delete userData.password;
+
+    return res.json({ ...userData, token });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Lỗi tại login:", error);
+    return res.status(500).json({ message: "Lỗi server" });
   }
 }
 
 async function getAllUsers(req, res) {
   try {
-    // Lấy tất cả người dùng, loại bỏ password khỏi kết quả
     const users = await UserModel.find({}, { password: 0 });
-
-    res.json(users);
+    return res.json(users);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Lỗi tại getAllUsers:", error);
+    return res.status(500).json({ message: "Lỗi server" });
   }
 }
 
-export { register, login, getAllUsers};
+async function verifyEmailHandler(req, res) {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ message: "Email và mã xác minh là bắt buộc" });
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Người dùng không tồn tại" });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ message: "Email đã được xác minh" });
+    }
+
+    if (
+      user.verificationCode !== code ||
+      !user.codeExpire ||
+      user.codeExpire < new Date()
+    ) {
+      return res.status(400).json({ message: "Mã xác minh không hợp lệ hoặc đã hết hạn" });
+    }
+
+    user.verified = true;
+    user.verificationCode = null;
+    user.codeExpire = null;
+    await user.save();
+
+    return res.status(200).json({ message: "Xác minh email thành công!" });
+  } catch (error) {
+    console.error("Lỗi verifyEmailHandler:", error);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+}
+
+export { register, login, getAllUsers, verifyEmailHandler };

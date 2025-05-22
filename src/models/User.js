@@ -7,11 +7,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
- phone: {
-  type: String,
-  required: false
-},
-
+  phone: {
+    type: String,
+    required: false
+  },
   email: {
     type: String,
     required: true,
@@ -23,6 +22,18 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: {          // thêm trường mã xác minh
+    type: String,
+    default: null,
+  },
+  codeExpire: {                // thêm trường thời hạn mã
+    type: Date,
+    default: null,
+  },
   isAdmin: {
     type: Boolean,
     default: false
@@ -30,6 +41,7 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
 
 const UserModel = mongoose.model('User', userSchema);
 

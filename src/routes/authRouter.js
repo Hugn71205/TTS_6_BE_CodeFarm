@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllUsers, login, register } from "../controllers/authController.js";
+import { getAllUsers, login, register,verifyEmailHandler } from "../controllers/authController.js";
 
 const authRouter = express.Router();
 
@@ -9,5 +9,8 @@ authRouter.post("/register", register);
 authRouter.post("/login", login);
 // Route lấy danh sách người dùng
 authRouter.get("/list", getAllUsers);
+// ROute xử lí xác minh
+authRouter.post("/verify-email", verifyEmailHandler);
+
 
 export default authRouter;
