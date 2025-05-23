@@ -1,25 +1,34 @@
 import nodemailer from "nodemailer";
-import { EMAIL_PASSWORD, EMAIL_USERNAME } from "../configs/enviroments.js";
+import dotenv from "dotenv";
 
-export const sendEmail = async (email, subject, text) => {
-	try {
-		const transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: EMAIL_USERNAME,
-				pass: EMAIL_PASSWORD,
-			},
-		});
+dotenv.config();
 
-		const mailOptions = {
-			from: EMAIL_USERNAME,
-			to: email,
-			subject: subject,
-			text: text,
-		};
+export const sendMail = async (email, subject, text) => {
+  try {
+  
+    // Debug biến môi trường lúc gọi hàm
+		console.log("EMAIL_USERNAME:", process.env.EMAIL_USERNAME);
+		console.log("EMAIL_PASSWORD is set:", !!process.env.EMAIL_PASSWORD);
 
-		await transporter.sendMail(mailOptions);
-	} catch (error) {
-		throw new Error("Error sending email: " + error.message);
-	}
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+      
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject,
+      text,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Error sending email: " + error.message);
+  }
 };

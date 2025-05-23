@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
 import { registerSchema } from "../validate/auth.js";
-import { sendMail } from "../utils/emailService.js";
+import { sendMail } from "../utils/sendMail.js";
 
 
 async function register(req, res) {
@@ -31,12 +31,10 @@ async function register(req, res) {
       codeExpire,
     });
 
-    // // Gửi mail kèm mã code
-    // await sendMail(
-    //   email,
-    //   "Mã xác minh email của bạn",
-    //   `<p>Chào ${name},</p><p>Mã xác minh email của bạn là: <b>${verificationCode}</b></p><p>Mã có hiệu lực 15 phút.</p>`
-    // );
+    // Gửi mail kèm mã code
+    const emailSubject = "APP Password in Node.js App by @khanhhhh";
+        const emailText = `Your activation code is: ${verificationCode}`;
+        await sendMail(email, emailSubject, emailText);
 
     return res.status(201).json({
       message: "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã xác minh.",
@@ -129,5 +127,20 @@ async function verifyEmailHandler(req, res) {
     return res.status(500).json({ message: "Lỗi server" });
   }
 }
-
+export const deleteUser = async (req,res)=>{
+    try {
+        // Lấy id
+        const id = req.params.id
+        // Tìm sản phẩm theo id
+        const user = await UserModel.findOne({_id:id})
+        if (user){
+            await UserModel.findOneAndDelete({_id:id})
+            res.status(200).send({message:"Xóa người dùng thành công",status:true})
+        }
+        else throw {mes:"Không tìm thấy người dùng",code:404}
+    } catch (error) {
+        // console.log(error);        
+        res.status(error.code??500).send({message:error.mes??"Xóa không thành công",status:false})
+    }
+}
 export { register, login, getAllUsers, verifyEmailHandler };

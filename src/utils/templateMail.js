@@ -16,8 +16,8 @@ export default function templateMail(type, template) {
     `;
   }
 
-  // Nếu bạn có thêm loại mail khác, có thể thêm ở đây
 
   return `<p>Nội dung email không xác định.</p>`;
 }
+
 
