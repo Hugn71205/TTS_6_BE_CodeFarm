@@ -90,3 +90,26 @@ export const deleteUser = async (req,res)=>{
         res.status(error.code??500).send({message:error.mes??"Xóa không thành công",status:false})
     }
 }
+
+// controllers/user.controller.ts
+export const blockUser = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { isBlocked } = req.body
+
+    const updatedUser = await UserModel.findByIdAndUpdate(id, { isBlocked }, { new: true })
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" })
+    }
+
+    res.json({ message: isBlocked ? "Đã khóa người dùng" : "Đã mở khóa người dùng", user: updatedUser })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+
+
+
+

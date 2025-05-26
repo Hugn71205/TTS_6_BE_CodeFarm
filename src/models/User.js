@@ -1,4 +1,3 @@
-// models/user.model.ts
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -27,11 +26,24 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isBlocked: {
+      type: Boolean,
+      default: false, // Người dùng mặc định là chưa bị khóa
+    },
+    resetOTP: {
+      type: String,
+      default: null,
+    },
+    resetOTPExpires: {
+      type: Number,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
+
 
 const UserModel = mongoose.model("User", userSchema);
 
