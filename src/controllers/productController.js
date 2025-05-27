@@ -59,7 +59,7 @@ export const getAllProducts = async (req, res) => {
     brand_id,
     sortBy = "created_at",
     order = "desc",
-  } = req.query;
+  } = req.query;  
 
   const query = {};
   if (name) {

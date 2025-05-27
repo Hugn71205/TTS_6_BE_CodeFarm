@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
 import { registerSchema } from "../validate/auth.js";
