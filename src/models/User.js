@@ -38,6 +38,19 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    verified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: {          // thêm trường mã xác minh
+    type: String,
+    default: null,
+  },
+  codeExpire: {                // thêm trường thời hạn mã
+    type: Date,
+    default: null,
+  },
+    
   },
   {
     timestamps: true,

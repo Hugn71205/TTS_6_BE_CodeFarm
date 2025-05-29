@@ -1,5 +1,5 @@
 import express from "express";
-import { blockUser, deleteUser, getAllUsers, login, register } from "../controllers/authController.js";
+import { blockUser, deleteUser, getAllUsers, login, register, verifyEmailHandler } from "../controllers/authController.js";
 import { forgotPassword } from "../controllers/forgot-password.js";
 import { verifyOTP } from "../controllers/VerifyOtp.js";
 import { resetPassword } from "../controllers/ResetPassword.js";
@@ -19,6 +19,7 @@ authRouter.delete("/:id", deleteUser);
 authRouter.patch("/block/:id", blockUser);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/verify-otp", verifyOTP);
+authRouter.post("/verify-email", verifyEmailHandler);
 // Route reset mật khẩu
 authRouter.post("/reset-password", resetPassword);
 
