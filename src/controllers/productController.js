@@ -53,7 +53,7 @@ export const createProduct = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   const {
     offset = 0,
-    limit = 5,
+    limit = 15,
     name,
     category_id,
     brand_id,

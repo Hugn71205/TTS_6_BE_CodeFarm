@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteUser, getAllUsers, login, register } from "../controllers/authController.js";
+import { deleteUser, getUsers, login, register } from "../controllers/authController.js";
 
 const authRouter = express.Router();
 
@@ -8,7 +8,7 @@ authRouter.post("/register", register);
 // Route đăng nhập
 authRouter.post("/login", login);
 // Route lấy danh sách người dùng
-authRouter.get("/list", getAllUsers);
+authRouter.get("/list", getUsers);
 // Route xóa người dùng
 authRouter.delete("/:id", deleteUser);
 
