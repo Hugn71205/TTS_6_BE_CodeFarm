@@ -1,14 +1,16 @@
 import { Router } from "express";
+import brandRouter from "./brand.router.js"
+import couponRoutes from './coupon.routes.js';
+import orderCouponRoutes from './orderCoupon.routes.js';
 
 const routes = Router();
 
-routes.use("/", (req, res) => {
-    res.success([{name: 'thang', age: 13}], "success", 200)
-})
+routes.use("/brands", brandRouter);
+routes.use('/coupons', couponRoutes);
+routes.use('/order-coupons', orderCouponRoutes);
 
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
-// routes.use("/products", hanldeProduct...)
+routes.get("/", (req, res) => {
+    res.json({ message: "API is working!" });
+});
 
 export default routes;
