@@ -1,17 +1,20 @@
 import mongoose from "mongoose";
 
-const volumeSchema = new mongoose.Schema({
-  size: {
-    type: Number,
-    required: true,
-    min: 1,
+const volumeSchema = new mongoose.Schema(
+  {
+    size: {
+      type: Number,
+      required: true,
+    },
+    label: {
+      type: String,
+      required: true,
+    },
   },
-  label: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-});
+  { timestamps: true,
+    versionKey: false 
+  }
+);
 
-export default mongoose.model("Volume", volumeSchema);
+const Volume = mongoose.model("Volume", volumeSchema);
+export default Volume;

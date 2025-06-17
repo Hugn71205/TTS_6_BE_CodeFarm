@@ -8,6 +8,10 @@ import categoryRouter from "./src/routes/categoryRouter.js";
 import brandRouter from "./src/routes/brandRouter.js";
 import productRouter from "./src/routes/productRouter.js";
 import responseHandler from "./src/middlewares/responseHandle.js";
+import orderRouter from "./src/routes/orderRouter.js";
+import ProductVariantRouter from "./src/routes/ProductVariantRouter.js";
+import volumesRouter from "./src/routes/volumesRouter.js";
+import orderItemRouter from "./src/routes/orderItemRouter.js";
 
 // Load biến môi trường
 dotenv.config();
@@ -25,6 +29,10 @@ app.use("/auth", authRouter);
 app.use("/categories", categoryRouter);
 app.use("/brands", brandRouter);
 app.use("/products", productRouter);
+app.use("/orders", orderRouter);
+app.use("/orders-item", orderItemRouter);
+app.use("/variants", ProductVariantRouter);
+app.use("/volumes", volumesRouter);
 
 
 // Khởi động server
