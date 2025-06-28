@@ -22,13 +22,22 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    address: {
+      type: String,
+      required: false,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
     isAdmin: {
       type: Boolean,
       default: false,
     },
     isBlocked: {
       type: Boolean,
-      default: false, // Người dùng mặc định là chưa bị khóa
+      default: false,
     },
     resetOTP: {
       type: String,
@@ -39,25 +48,20 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     verified: {
-    type: Boolean,
-    default: false,
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      default: null,
+    },
+    codeExpire: {
+      type: Date,
+      default: null,
+    },
   },
-  verificationCode: {          // thêm trường mã xác minh
-    type: String,
-    default: null,
-  },
-  codeExpire: {                // thêm trường thời hạn mã
-    type: Date,
-    default: null,
-  },
-    
-  },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-
 const UserModel = mongoose.model("User", userSchema);
-
 export default UserModel;
