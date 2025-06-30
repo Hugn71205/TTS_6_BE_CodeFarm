@@ -12,6 +12,8 @@ import orderRouter from "./src/routes/orderRouter.js";
 import orderItemRouter from "./src/routes/orderItemRouter.js";
 import productVariantRouter from "./src/routes/ProductVariantRouter.js";
 import volumeRouter from "./src/routes/volumeRouter.js";
+import vnpayRouter from './src/routes/vnpay.js';
+
 
 // Load biến môi trường
 dotenv.config();
@@ -33,6 +35,8 @@ app.use("/orders", orderRouter);
 app.use("/orders-item", orderItemRouter);
 app.use("/productVariant", productVariantRouter);
 app.use("/volumes", volumeRouter);
+app.use('/vnpay', vnpayRouter);
+
 
 
 // Khởi động server
