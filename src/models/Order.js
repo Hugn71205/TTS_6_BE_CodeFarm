@@ -1,8 +1,10 @@
-// models/Order.ts
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const OrderSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+const orderSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   customer_info: {
     username: String,
     phone_number: String,
@@ -13,31 +15,43 @@ const OrderSchema = new mongoose.Schema({
     phone_number: String,
     email: String,
   },
-  total_amount: Number,
   shipping_address: {
     detail_address: String,
     province: String,
     district: String,
     ward: String,
   },
-  status: {
+  total_amount: Number,
+  shipping_fee: Number,
+  payment_method: {
     type: String,
-    enum: ['pending', 'confirmed', 'out for delivery', 'delivered', 'canceled', 'done'],
-    default: 'pending',
+    enum: ["cash", "vnpay"],
+    required: true,
   },
-  is_paid: { type: Boolean, default: false },
   payment_status: {
     type: String,
-    enum: ['pending', 'successfully', 'failed'],
-    default: 'pending',
+    enum: ["unpaid", "paid", "pending"],
+    default: "unpaid",
   },
-  payment_method: String,
-  transaction_id: String,
-  shipping_fee: Number,
-  description: String,
-  tracking_number: String,
+  is_paid: {
+    type: Boolean,
+    default: false,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+    default: "pending",
+  },
   user_note: String,
-  cancel_by: { type: String, enum: ['user', 'admin'] },
+
+  // 👇 Danh sách các product_id (tùy chọn)
+  product_ids: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product"
+    }
+  ],
 }, { timestamps: true });
 
-export default mongoose.model('Order', OrderSchema);
+const Order = mongoose.model("Order", orderSchema);
+export default Order;
