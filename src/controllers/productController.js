@@ -2,6 +2,8 @@ import Product from "../models/Product.js";
 import Category from "../models/Category.js";
 import Brand from "../models/Brand.js";
 import { ProductValidate } from "../validate/productValidate.js";
+import ProductVariant from "../models/ProductVariant.js";
+
 
 // Tạo sản phẩm
 export const createProduct = async (req, res) => {
@@ -105,6 +107,7 @@ export const getProductById = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Lấy thông tin sản phẩm
     const product = await Product.findById(id)
       .populate("category_id", "name")
       .populate("brand_id", "name");
@@ -113,7 +116,23 @@ export const getProductById = async (req, res) => {
       return res.error("Không tìm thấy sản phẩm", 404);
     }
 
-    return res.success({ data: product }, "Lấy thông tin sản phẩm thành công");
+    // Lấy danh sách biến thể sản phẩm
+    const variants = await ProductVariant.find({ product_id: id }).populate("volume_id");
+
+    if (!variants || variants.length === 0) {
+      return res.success(
+        { product, variants: [] },
+        "Lấy thông tin sản phẩm thành công (không có biến thể)"
+      );
+    }
+
+    // Gán biến thể đầu tiên làm mặc định (nếu muốn)
+    const current = variants[0];
+
+    return res.success(
+      { product, variants, current },
+      "Lấy thông tin sản phẩm thành công"
+    );
   } catch (error) {
     return res.error("Lỗi server khi lấy thông tin sản phẩm", 500);
   }
